@@ -7,7 +7,7 @@ from typing import Optional,List
 from sqlalchemy.orm import session
 from sqlalchemy.orm import Session
 from ..routers import oauth2
-
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
     prefix="/login",
@@ -15,15 +15,15 @@ router = APIRouter(
 )
 
 
-@router.post('/')
-def login(user_credentials:schemas.Userlogin,db:session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == user_credentials.email).first()
+@router.post('/',response_model= schemas.Token)
+def login(user_credentials: OAuth2PasswordRequestForm = Depends(),db:session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == user_credentials.username).first()
 
     if not user:
-       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Invalid Credentials")
+       raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail = f"Invalid Credentials")
 
     if not utils.verify(user_credentials.password,user.password):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = f"Please enter correct password")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail = f"Please enter correct password")
 
     ## generae token
     ## return token
