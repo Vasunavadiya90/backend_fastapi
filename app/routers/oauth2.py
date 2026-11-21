@@ -4,23 +4,34 @@ from .. import schemas,  models , database
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+import os
+from app.config import settings
 # SECRET KEY
 # ALGORITHM
 # EXPIRATION TIME
+
+# load_dotenv(dotenv_path="../.env") 
+# SECRET_KEY = os.getenv("SECRET_KEY")
+# ALGORITHM = os.getenv("ALGORITHM")
+# ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES","30"))
+
+
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
-SECRET_KEY = "K7xQm9vR2pL8nT5wY3aF6jH0cB4eD1sU9zGkM2qW7xN5vP8rL3aJ6fC0hT4yB1eS"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# SECRET_KEY = "K7xQm9vR2pL8nT5wY3aF6jH0cB4eD1sU9zGkM2qW7xN5vP8rL3aJ6fC0hT4yB1eS"
+# ALGORITHM = "HS256"
+# ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def create_access_token(data:dict):
     to_encode = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
 
-    encoded_jwt = jwt.encode(to_encode,SECRET_KEY,algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode,settings.SECRET_KEY,algorithm=settings.ALGORITHM)
 
 
     return encoded_jwt
@@ -30,7 +41,7 @@ def create_access_token(data:dict):
 def verify_access_token(token:str, credentials_exception):
     try: 
 
-        payload = jwt.decode(token,SECRET_KEY,algorithms= [ALGORITHM])
+        payload = jwt.decode(token,settings.SECRET_KEY,algorithms= [settings.ALGORITHM])
 
         id:str = payload.get("user_id")
 
@@ -54,3 +65,11 @@ def get_current_user(token:str = Depends(oauth2_scheme), db:Session = Depends(da
     user = db.query(models.User).filter(models.User.id == token.id).first()
 
     return user
+
+
+
+
+
+
+
+

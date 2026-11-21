@@ -1,20 +1,18 @@
 from fastapi import FastAPI,Request,Response,status,HTTPException, Depends
-from fastapi.templating import Jinja2Templates
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional,List
-from random import randrange
 from dotenv import load_dotenv
 import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import time
 from . import models
 from app.database import Base, SessionLocal,engine,get_db
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from . import schemas,utils
 from app.routers import post,users,auth
+from .config import settings
+
+
 load_dotenv()
 
 app = FastAPI()
@@ -22,7 +20,9 @@ app = FastAPI()
 password_hash = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
 
-
+app.include_router(post.router)
+app.include_router(users.router)
+app.include_router(auth.router)
    
 # @app.get("/posts",response_model=List[schemas.Post])
 # def get_conncetion(db:Session = Depends(get_db)):
@@ -131,7 +131,3 @@ models.Base.metadata.create_all(bind=engine)
 #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
 #                             detail=f"User with ID : {id} does not exist")
 #     return user
-
-app.include_router(post.router)
-app.include_router(users.router)
-app.include_router(auth.router)
