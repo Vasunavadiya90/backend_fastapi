@@ -9,7 +9,7 @@ from app.database import Base, SessionLocal,engine,get_db
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from . import schemas,utils
-from app.routers import post,users,auth
+from app.routers import post,users,auth,vote
 from .config import settings
 
 
@@ -23,7 +23,7 @@ models.Base.metadata.create_all(bind=engine)
 app.include_router(post.router)
 app.include_router(users.router)
 app.include_router(auth.router)
-   
+app.include_router(vote.router)
 # @app.get("/posts",response_model=List[schemas.Post])
 # def get_conncetion(db:Session = Depends(get_db)):
 
