@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import Optional,List
 from sqlalchemy.orm import Session
 from app.routers.oauth2 import get_current_user
-
+from sqlalchemy import func
 router = APIRouter(
     prefix="/posts",
     tags=['posts']
@@ -14,11 +14,13 @@ router = APIRouter(
 
 
   
-@router.get("/",response_model=List[schemas.Post])
+# @router.get("/",response_model=List[schemas.Post])
+@router.get("/",response_model=List[schemas.PostOut])
 def get_posts(db:Session = Depends(get_db),current_user:int = Depends(get_current_user),limit:int = 10,skip:int = 2, search:Optional[str]=""):
 
     post = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
-    return post 
+    results = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(models.Vote, models.Vote.post_id==models.Post.id,isouter=True).group_by(models.Post.id).all()
+    return results
 
  
 
