@@ -9,17 +9,25 @@ from app.database import Base, SessionLocal,engine,get_db
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from . import schemas,utils
-from app.routers import post,users,auth,vote
+from app.routers import post,users,auth,vote,hw
 from .config import settings
-
-
+from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 app = FastAPI()
 
-password_hash = CryptContext(schemes=["bcrypt"], deprecated="auto")
-models.Base.metadata.create_all(bind=engine)
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(hw.router)
 app.include_router(post.router)
 app.include_router(users.router)
 app.include_router(auth.router)
