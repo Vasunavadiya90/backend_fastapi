@@ -10,7 +10,10 @@ from sqlalchemy import func
 
 router = APIRouter()
 
-@router.get("/hello")
-def get_posts(db:Session = Depends(get_db),current_user:int = Depends(get_current_user),limit:int = 10,skip:int = 2, search:Optional[str]=""):
+@router.get("/")
+def get_posts():
 
     return "hello world"
+# def get_posts(db:Session = Depends(get_db),current_user:int = Depends(get_current_user),limit:int = 10,skip:int = 2, search:Optional[str]=""):
+
+#     return "hello world"
